@@ -4,7 +4,8 @@ from pydantic import AnyUrl
 class Settings(BaseSettings):
     DATABASE_URL: AnyUrl
     OPENAI_API_KEY: str
-    
+    BRAINTRUST_API_KEY: str
+
 
     class Config:
         env_file = ".env"

@@ -4,6 +4,7 @@ from config import settings
 
 
 client = OpenAI(api_key = settings.OPENAI_API_KEY)
+
 SYSTEM_PROMPT = """
 You are an agritech assistant specialized ONLY in crop harvest readiness.
 
@@ -47,6 +48,7 @@ Notes:
 
 (Repeat the <CROP NAME> section for each crop if multiple crops are mentioned.)
 """
+
 def llm_answer(user_question: str) -> str:
     """
     Generates an answer for harvest-readiness questions.

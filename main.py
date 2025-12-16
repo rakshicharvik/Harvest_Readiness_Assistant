@@ -1,13 +1,15 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
-from llm import llm_answer
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from openai import OpenAI
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from fastapi import Depends, HTTPException
-from db import SessionLocal, get_db
+from config import settings
+from db import get_db
 from models import User
+from llm import llm_answer
+from guardrails import guard_prompt, guard_output
+from eval import log_and_score
 
-from guardrails import guard_prompt, guard_output 
 
 app = FastAPI()
 
@@ -19,12 +21,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-def get_db():
-    db: Session = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+
+
+
+# ---------------- LOGIN ----------------
 
 class LoginIn(BaseModel):
     username: str
@@ -49,10 +49,10 @@ def login(payload: LoginIn, db: Session = Depends(get_db)):
     return {"user_id": user.id, "username": user.username, "role": "farmer"}
 
 
-
+# ---------------- ASK ----------------
 
 class QueryRequest(BaseModel):
-    user_id: int | None = None 
+    user_id: int | None = None
     question: str
     crop: str | None = None
     cropOther: str | None = None
@@ -65,33 +65,36 @@ class QueryResponse(BaseModel):
 
 INTENT_KEYWORDS = [
     "harvest", "harvesting", "ready", "readiness", "maturity", "mature",
-    "ripeness", "ripe", "moisture", "brix", "firmness","sign","signs"
-    "indicator", "indicators", "field test", "test"
+    "ripeness", "ripe", "moisture", "brix", "firmness",
+    "sign", "signs",
+    "indicator", "indicators",
+    "field test", "test",
 ]
 
 @app.post("/ask", response_model=QueryResponse)
 def ask_ques(payload: QueryRequest, db: Session = Depends(get_db)):
-
-    # require valid logged-in farmer
+    # (optional) if frontend sends user_id, validate it
     if payload.user_id is not None:
         user = db.query(User).filter(User.id == payload.user_id).first()
         if not user:
             raise HTTPException(status_code=401, detail="Please login first")
         if not user.is_farmer:
             raise HTTPException(status_code=403, detail="Only farmers can access this app")
-        
 
     q = (payload.question or "").strip()
+    if not q:
+        raise HTTPException(status_code=400, detail="Question required")
+
+    # prompt injection guardrail
+    guard_prompt(q)  # raises HTTPException(400) if unsafe
+
     q_lower = q.lower()
 
-    # prompt injection
-    guard_prompt(q)
-
-    # harvest-intent guardrail
+    # harvest-intent check (handled here, NOT by guard_output)
     is_harvest_intent = any(k in q_lower for k in INTENT_KEYWORDS)
     if not is_harvest_intent:
         return QueryResponse(
-            answer="I'm designed only for harvest-readiness questions. Please ask about harvest readiness."
+            answer="I can assist only with harvest readiness questions. Please ask about harvest readiness."
         )
 
     # crop resolution
@@ -106,58 +109,23 @@ def ask_ques(payload: QueryRequest, db: Session = Depends(get_db)):
         return QueryResponse(answer="Please select a crop or choose Other and type the crop name")
 
     enriched = f"""
-    You are answering ONLY harvest-readiness questions.
+You are answering ONLY harvest-readiness questions.
 
-    Crop: {crop_name}
-    Location: {payload.location or "not specified"}
-    Season: {payload.season or "not specified"}
-    Soil: {payload.soil or "not specified"}
+Crop: {crop_name}
+Location: {payload.location or "not specified"}
+Season: {payload.season or "not specified"}
+Soil: {payload.soil or "not specified"}
 
-    Question: {q}""".strip()
+Question: {q}
+""".strip()
 
+    
     ans = llm_answer(enriched)
 
     safe_ans = guard_output(ans, crop_name=crop_name)
-
+    
+    log_and_score(question=q, answer=safe_ans, crop=crop_name)
     return QueryResponse(answer=safe_ans)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
