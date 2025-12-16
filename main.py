@@ -73,7 +73,7 @@ INTENT_KEYWORDS = [
 
 @app.post("/ask", response_model=QueryResponse)
 def ask_ques(payload: QueryRequest, db: Session = Depends(get_db)):
-    # (optional) if frontend sends user_id, validate it
+
     if payload.user_id is not None:
         user = db.query(User).filter(User.id == payload.user_id).first()
         if not user:
@@ -90,7 +90,7 @@ def ask_ques(payload: QueryRequest, db: Session = Depends(get_db)):
 
     q_lower = q.lower()
 
-    # harvest-intent check (handled here, NOT by guard_output)
+    # harvest-intent check 
     is_harvest_intent = any(k in q_lower for k in INTENT_KEYWORDS)
     if not is_harvest_intent:
         return QueryResponse(

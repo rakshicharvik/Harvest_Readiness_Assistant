@@ -1,19 +1,10 @@
-import os
 from openai import OpenAI
 from config import settings
 
 
 client = OpenAI(api_key = settings.OPENAI_API_KEY)
 
-SYSTEM_PROMPT = """
-You are an agritech assistant specialized ONLY in crop harvest readiness.
 
-Hard rules:
-- Answer ONLY harvest-readiness questions.
-- If the question is unrelated, politely refuse.
-- Follow the exact template below.
-...
-"""
 SYSTEM_PROMPT = """
 You are an agritech assistant specialized ONLY in crop harvest readiness.
 
@@ -33,7 +24,7 @@ Exact output template (must follow):
 Summary:
 - <1-2 short sentences>
 
-<CROP NAME>:
+crop:<CROP NAME>
 Indicators:
 - <bullet 1>
 - <bullet 2>
@@ -59,7 +50,7 @@ def llm_answer(user_question: str) -> str:
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": user_question},
         ],
-        temperature=0.2,
+        temperature=0.2, #consistent answer
         max_tokens=350,           
     )
     return (resp.choices[0].message.content or "").strip()

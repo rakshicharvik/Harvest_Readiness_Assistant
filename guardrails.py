@@ -1,5 +1,5 @@
-import re
-from fastapi import HTTPException
+import re #pattern  matching
+from fastapi import HTTPException #block request
 
 INJECTION_PATTERNS = [
     r"ignore\s+previous\s+instructions",
@@ -32,7 +32,7 @@ def guard_output(answer: str, crop_name: str = "your crop") -> str:
     text = (answer or "").strip()
     if not text:
         return (
-            "I designed only for harvest readiness so could not generate an answer right now"
+            "I designed only for harvest readiness.  So could not generate an answer right now"
             f"Please ask again about harvest readiness for {crop_name}."
         )
 

@@ -31,6 +31,6 @@ def log_and_score(question: str, answer: str, crop: str | None = None, meta: dic
     logger.log(
         input={"question": question, "crop": crop},
         output={"answer": answer},
-        metadata=meta or {},
+        metadata=meta or {},  #data about data
         tags=["live-chat"]
     )

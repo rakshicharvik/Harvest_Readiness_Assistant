@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useState } from "react"; //useState is used to store and update the value on screen
+import { useNavigate } from "react-router";//useNavigate is used to move from one page to another
 import { Input } from "~/components/ui/input";
 
 export default function Login() {
@@ -9,7 +9,7 @@ export default function Login() {
   const [isFarmer, setIsFarmer] = useState<boolean | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
 
-  async function handleContinue() {
+  async function handleContinue() { // async- cause it call backend API
   setMsg(null);
 
   const username = name.trim();
@@ -30,7 +30,7 @@ export default function Login() {
   }
 
   try {
-    const res = await fetch("http://localhost:8000/login", {
+    const res = await fetch("http://localhost:8000/login", { 
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, is_farmer: true }),
@@ -72,7 +72,7 @@ export default function Login() {
 
         <div className="mt-5 space-y-3">
           <div>
-            <label className="text-xs text-gray-500">Your name</label>
+            <label className="text-xs text-black-500">Your name</label>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -81,7 +81,7 @@ export default function Login() {
           </div>
 
           <div className="pt-2">
-            <div className="text-xs text-gray-500 mb-2">Are you a farmer?</div>
+            <div className="text-xs text-black-500 mb-2">Are you a farmer?</div>
 
             <div className="flex gap-3">
               <button
