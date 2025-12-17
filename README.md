@@ -9,7 +9,7 @@ The system answers questions related to **harvest timing, harvest readiness, and
 The solution is built incrementally using a **prototype-first approach**, validated through manual testing and automated tests, and then enhanced with an LLM.
 
 ## High-Level Architecture 
-
+![alt text](Architecture.png)
 The system is **intentionally scoped** to solve a **single, well-defined problem**:
 
 > Harvest Readiness Question Answering for Farmers-  It is **not** designed as a general chatbot
