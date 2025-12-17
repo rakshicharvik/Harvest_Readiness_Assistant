@@ -1,5 +1,14 @@
 # 🌾 Agri Harvest Assistant 
 
+##  Problem Statement
+
+Farmers often need **quick,reliable answers** to determine whether a crop is ready for harvest.
+General-purpose chatbots tend to provide **broad or inconsistent answers,** which can lead to 
+poor decision-making. The challenge is to build a system that answers harvest readiness 
+questions, which can lead to poor decision-making. The challenge is to build a system 
+that answers **harvest readiness questions accuratelu and consistenly**. This project addresses
+that challenge by designing a **domain-restricted, controlled AI system focused only on harvest readiness**.
+
 ##  Project Overview
 
 The **Agri Harvest Assistant** is a **domain-specific AI application designed only for Harvest Readiness**. It intentionally does **not** act as a general agriculture chatbot.
