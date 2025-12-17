@@ -32,7 +32,7 @@ def guard_output(answer: str, crop_name: str = "your crop") -> str:
     text = (answer or "").strip()
     if not text:
         return (
-            "I designed only for harvest readiness.  So could not generate an answer right now"
+            "I designed only for harvest readiness.  So, could not generate an answer right now"
             f"Please ask again about harvest readiness for {crop_name}."
         )
 
